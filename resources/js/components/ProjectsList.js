@@ -11,8 +11,8 @@ class ProjectsList extends Component {
         };
     }
 
-    ComponentDidMount () {
-        axios.get('/api/pojects').then(response => {
+    componentDidMount () {
+        axios.get('/api/projects').then(response => {
             this.setState({
                 projects: response.data
             });

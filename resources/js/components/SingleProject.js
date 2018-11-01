@@ -7,22 +7,19 @@ class SingleProject extends Component {
         this.state = {
             project: {},
             tasks:[],
+            title: '',
+            errors: []
         };
-        this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(this);
+
         this.handleFieldChange = this.handleFieldChange.bind(this);
         this.handleAddNewTask = this.handleAddNewTask.bind(this);
+        this.hasErrorFor = this.hasErrorFor.bind(this);
         this.renderErrorFor = this.renderErrorFor.bind(this);
-    }
-
-    this.state = {
-        ...,
-        title: '',
-        erros: []
+        this.handleMarkProjectAsCompleted = this.handleMarkProjectAsCompleted.bind(this);
     }
 
     componentDidMount () {
-        const projectId =   this.props.match.params.id
-
+        const projectId = this.props.match.params.id
         axios.get(`/api/projects/${projectId}`).then(response => {
             this.setState({
                 project: response.data,
@@ -34,8 +31,9 @@ class SingleProject extends Component {
     handleMarkProjectAsCompleted () {
         const { history } = this.props;
 
-        axios.put(`/api/projects/${this.state.project.id}`)
-            .then(response = history.push('/'));
+        axios
+            .put(`/api/projects/${this.state.project.id}`)
+            .then(response => history.push('/'));
     }
 
     handleFieldChange (event) {
@@ -44,30 +42,42 @@ class SingleProject extends Component {
         });
     }
 
-    handleAddNewTask () {
-        event.preventDefaul();
+    handleAddNewTask (event) {
+        event.preventDefault();
 
         const task = {
             title: this.state.title,
             project_id: this.state.project.id
         };
 
-        axios.post('/api/tasks', task)
+        axios
+            .post('/api/tasks/', task)
             .then(response => {
                 // Clear form input
                 this.setState({
-                    title: '';
+                    title: ''
                 });
+
                 // Add new task to list of task
-                this.setState(prevState => {
+                this.setState(prevState => ({
                     tasks: prevState.tasks.concat(response.data)
-                });
+                }));
             })
             .catch(error => {
                 this.setState({
                     errors: error.response.data.errors
                 });
             });
+    }
+
+    handleMarkTaskAsCompleted (taskId) {
+        axios.put(`/api/tasks/${taskId}`).then(response => {
+            this.setState(prevState => ({
+                tasks: prevState.tasks.filter(task => {
+                    return task.id !== taskId
+                })
+            }));
+        });
     }
 
     hasErrorFor (field) {
@@ -86,7 +96,7 @@ class SingleProject extends Component {
     }
 
     render () {
-        const { project, tasks } = this.state
+        const { project, tasks } = this.state;
         return (
             <div className="container py-4">
                 <div className="row justify-content-center">
@@ -123,15 +133,18 @@ class SingleProject extends Component {
                                     </div>
                                 </form>
 
-                                <ul className"list-group mt-3">
+                                <ul className="list-group mt-3">
                                     {tasks.map(task => (
                                         <li
                                             key={task.id}
-                                            className="list-group-item d-flex justify-content-between align-item-center"
+                                            className='list-group-item d-flex justify-content-between align-items-center'
                                         >
                                             {task.title}
 
-                                            <button className="btn btn-sm btn-primary">
+                                            <button
+                                                className="btn btn-sm btn-primary"
+                                                onClick={this.handleMarkTaskAsCompleted.bind(this, task.id)}
+                                            >
                                                 Mark as completed
                                             </button>
                                         </li>

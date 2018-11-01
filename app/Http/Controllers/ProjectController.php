@@ -14,10 +14,10 @@ class ProjectController extends Controller
      */
     public function index()
     {
-        $projects =Project::where('is_completed', false)
-                            ->latest()
-                            ->withCount(['task' => function ($query) {
-                                $query->where('is_completed', false)
+        $projects = Project::where('is_completed', false)
+                            ->orderBy('created_at', 'desc')
+                            ->withCount(['tasks' => function ($query) {
+                              $query->where('is_completed', false);
                             }])
                             ->get();
 
@@ -32,17 +32,17 @@ class ProjectController extends Controller
      */
     public function store(Request $request)
     {
-        $validateData = $request->validate([
-            'name' => 'required',
-            'description' => 'required'
+        $validatedData = $request->validate([
+          'name' => 'required',
+          'description' => 'required',
         ]);
 
         $project = Project::create([
-            'name' => $validateData['name'],
-            'description' => $validateData['description']
+          'name' => $validatedData['name'],
+          'description' => $validatedData['description'],
         ]);
 
-        return response()->toJson('Project created!')
+        return response()->json('Project created!');
     }
 
     /**
@@ -53,7 +53,7 @@ class ProjectController extends Controller
      */
     public function show($id)
     {
-        $project = Project::with(['tasks' => function ($quert) {
+        $project = Project::with(['tasks' => function ($query) {
             $query->where('is_completed', false);
         }])->find($id);
 
@@ -67,3 +67,4 @@ class ProjectController extends Controller
 
         return response()->json('Project updated!');
     }
+}

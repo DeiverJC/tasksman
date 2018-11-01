@@ -19,10 +19,10 @@ class TaskController extends Controller
 
         $task = Task::create([
             'title' => $validateData['title'],
-            'project_id' = $request->project_id
+            'project_id' => $request->project_id
         ]);
 
-        return response()->toJson('Task update!');
+        return response()->json('Task update!');
     }
 
     public function markAsCompleted(Task $task)
@@ -30,5 +30,6 @@ class TaskController extends Controller
         $task->is_completed = true;
         $task->update();
 
-        return response()->toJson('Task updated!');
+        return response()->json('Task updated!');
     }
+}
