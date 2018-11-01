@@ -57,6 +57,7 @@ class SingleProject extends Component {
                 this.setState({
                     title: ''
                 });
+                console.log(this.state);
 
                 // Add new task to list of task
                 this.setState(prevState => ({
